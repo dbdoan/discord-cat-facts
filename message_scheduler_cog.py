@@ -25,7 +25,7 @@ random_fact_val = random.randint(0, len(cat_facts_df))
 # /////////// /////////// ///////////
 # Set time to send scheduled message
 utc = datetime.timezone.utc
-time = datetime.time(hour=13, minute=43, tzinfo=utc)
+time = datetime.time(hour=14, minute=14, tzinfo=utc)
 
 # Optional: seconds
 # time = datetime.time(hour=13, minute=35, second=45, tzinfo=utc)

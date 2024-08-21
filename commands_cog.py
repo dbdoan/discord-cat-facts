@@ -13,6 +13,7 @@ class BotCommands(commands.Cog):
     async def ping(self, interaction: discord.Interaction):
         await interaction.response.send_message("pong")
 
+    # Rate limit fail safe
     @app_commands.command(name="sync", description="To safely sync new commands to prevent rate limit.")
     @commands.is_owner()
     async def sync(self, interaction: discord.Interaction, guild_id: int = None):
@@ -29,15 +30,16 @@ class BotCommands(commands.Cog):
     async def sync_error(self, interaction: discord.Interaction, error):
         if isinstance(error, commands.NotOwner):
             await interaction.response.send_message("You are not the owner!", ephemeral=True)
-    
-    @commands.Cog.listener()
-    async def on_ready(self):
-        try:
-            # Ensure the /sync command is available globally after the bot is ready
-            await self.bot.tree.sync()
-            print("Commands synced globally")
-        except Exception as e:
-            print(f"Failed to sync commands: {e}")
+
+    # Un-comment this block if you wish to implement build-in slash commands.
+    # @commands.Cog.listener()
+    # async def on_ready(self):
+    #     try:
+    #         # Ensure the /sync command is available globally after the bot is ready
+    #         await self.bot.tree.sync()
+    #         print("Commands synced globally")
+    #     except Exception as e:
+    #         print(f"Failed to sync commands: {e}")
 
 async def setup(bot):
     await bot.add_cog(BotCommands(bot))
