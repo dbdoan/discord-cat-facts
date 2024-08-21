@@ -17,7 +17,8 @@ A Discord bot which outputs a random cat fact everyday at the same scheduled tim
 <img src="https://i.ibb.co/3R4Dszb/cat-example.png" alt="Preview of bot" width="500px">
 
 ## Future Additions
-- Public site for users to add bot to their servers.
+- Public site for users to add bot to their servers
 - Send random cat pictures
 - Command for user to set custom time for bot
 - Easter egg
+- SQL server to track guilds_id and channel_ids over a csv
