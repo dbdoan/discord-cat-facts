@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from keys import discord_channel_id, discord_server_id
+from keys import discord_server_id
 
 DISCORD_SERVER_ID = discord_server_id
 
@@ -13,33 +13,33 @@ class BotCommands(commands.Cog):
     async def ping(self, interaction: discord.Interaction):
         await interaction.response.send_message("pong")
 
-    # Rate limit fail safe
-    @app_commands.command(name="sync", description="To safely sync new commands to prevent rate limit.")
-    @commands.is_owner()
-    async def sync(self, interaction: discord.Interaction, guild_id: int = None):
-        if guild_id:
-            guild = discord.Object(id=guild_id)
-            self.bot.tree.copy_global_to(guild=guild)
-            await self.bot.tree.sync(guild=guild)
-            await interaction.response.send_message(f"Commands synced to guild {guild_id}", ephemeral=True)
-        else:
-            await self.bot.tree.sync()
-            await interaction.response.send_message("Commands synced globally", ephemeral=True)
+    # Uncomment in the future if you are experimenting with bot and run into a rate limit. 
+    # Better to sync commands sparingly rather than every time you run the bot.
 
-    @sync.error
-    async def sync_error(self, interaction: discord.Interaction, error):
-        if isinstance(error, commands.NotOwner):
-            await interaction.response.send_message("You are not the owner!", ephemeral=True)
-
-    # Un-comment this block if you wish to implement build-in slash commands.
-    # @commands.Cog.listener()
-    # async def on_ready(self):
-    #     try:
-    #         # Ensure the /sync command is available globally after the bot is ready
+    # @app_commands.command(name="sync", description="To safely sync new commands to prevent rate limit.")
+    # @commands.is_owner()
+    # async def sync(self, interaction: discord.Interaction, guild_id: int = None):
+    #     if guild_id:
+    #         guild = discord.Object(id=guild_id)
+    #         self.bot.tree.copy_global_to(guild=guild)
+    #         await self.bot.tree.sync(guild=guild)
+    #         await interaction.response.send_message(f"Commands synced to guild {guild_id}", ephemeral=True)
+    #     else:
     #         await self.bot.tree.sync()
-    #         print("Commands synced globally")
-    #     except Exception as e:
-    #         print(f"Failed to sync commands: {e}")
+    #         await interaction.response.send_message("Commands synced globally", ephemeral=True)
+
+    # @sync.error
+    # async def sync_error(self, interaction: discord.Interaction, error):
+    #     if isinstance(error, commands.NotOwner):
+    #         await interaction.response.send_message("You are not the owner!", ephemeral=True)
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        try:
+            await self.bot.tree.sync()
+            print("Commands synced globally")
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
 
 async def setup(bot):
     await bot.add_cog(BotCommands(bot))

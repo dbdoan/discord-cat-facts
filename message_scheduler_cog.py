@@ -20,12 +20,11 @@ except Exception as err:
 
 cat_facts_df = pandas.DataFrame(data=response.json())
 random_fact_val = random.randint(0, len(cat_facts_df))
-# print()
 
 # /////////// /////////// ///////////
 # Set time to send scheduled message
 utc = datetime.timezone.utc
-time = datetime.time(hour=14, minute=14, tzinfo=utc)
+time = datetime.time(hour=14, minute=43, tzinfo=utc)
 
 # Optional: seconds
 # time = datetime.time(hour=13, minute=35, second=45, tzinfo=utc)
@@ -41,10 +40,12 @@ class SchedulerCog(commands.Cog):
     @tasks.loop(time=time)
     async def message_send(self):
         channel = self.bot.get_channel(DISCORD_CHANNEL_ID)
+        time_now = datetime.datetime.now()
+        formatted_time = time_now.strftime("%I:%M %p")
         if channel:
             daily_cat_fact = cat_facts_df['text'][random_fact_val]
             await channel.send(f"Good morning! 🐈\nHere's your daily cat fact to start the day:\n\n```{daily_cat_fact}```")
-            print(f"Fact sent at {utc}.")
+            print(f"Fact sent at {formatted_time}.")
         else:
             print("Channel not found")
 
