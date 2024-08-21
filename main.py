@@ -1,20 +1,10 @@
 import asyncio
 import discord
 from discord.ext import commands
-import dotenv
-import os
-import sys
+from keys import bot_token
 
 # /////////// /////////// ///////////
-os.system('clear')
-
-dotenv.load_dotenv()
-DISCORD_BOT_TOKEN = os.getenv('BOT_TOKEN')
-if not DISCORD_BOT_TOKEN:
-    print("No bot token has been set.")
-    sys.exit(1)
-else:
-    print("Bot token has been set.")
+DISCORD_BOT_TOKEN = bot_token
 
 intents = discord.Intents.default()
 intents.message_content = True
