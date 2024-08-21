@@ -1,12 +1,7 @@
 import asyncio
-import datetime
 import discord
-from discord.ext import commands, tasks
-import math
+from discord.ext import commands
 import dotenv
-import random
-import requests
-import pandas
 import os
 import sys
 
@@ -32,7 +27,8 @@ async def on_ready():
     print(f'Logged in as {bot.user}')
 
 async def load_cogs():
-    await bot.load_extension("message_scheduler")
+    await bot.load_extension("message_scheduler_cog")
+    await bot.load_extension("commands_cog")
 
 async def main():
     await load_cogs()
