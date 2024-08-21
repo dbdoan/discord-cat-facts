@@ -2,6 +2,9 @@ import asyncio
 import discord
 from discord.ext import commands
 from keys import bot_token
+# from os import system
+
+# system('clear')
 
 # /////////// /////////// ///////////
 DISCORD_BOT_TOKEN = bot_token
