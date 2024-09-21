@@ -21,7 +21,7 @@ def fetch_cat_facts():
 # /////////// /////////// ///////////
 # Set time to send scheduled message
 utc = datetime.timezone.utc
-time = datetime.time(hour=1, minute=55, tzinfo=utc)
+time = datetime.time(hour=2, minute=52, tzinfo=utc)
 
 # Optional: seconds
 # time = datetime.time(hour=13, minute=35, second=45, tzinfo=utc)
@@ -71,6 +71,9 @@ class SchedulerCog(commands.Cog):
             daily_cat_fact = cat_facts_df['text'][random_fact_val]
             await channel.send(f"Good morning! 🐈\nHere's your daily cat fact to start the day:\n\n```{daily_cat_fact}```")
             print(f"Fact sent at {formatted_time}.")
+            # Remove the chosen daily cat fact from the pool of daily cat facts
+            cat_facts_df.drop(random_fact_val, inplace=True)
+            print(cat_facts_df['text'])
         else:
             print("Channel not found")
 

@@ -14,7 +14,7 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Load the Cog
+# Load the Cog(s)
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')

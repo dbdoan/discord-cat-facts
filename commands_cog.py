@@ -9,6 +9,7 @@ class BotCommands(commands.Cog):
         self.csv_file = 'ids.csv'
 
     @app_commands.command(name="ping", description="Responds with pong")
+    @commands.has_permissions(administrator=True)
     async def ping(self, interaction: discord.Interaction):
         await interaction.response.send_message("pong")
 
