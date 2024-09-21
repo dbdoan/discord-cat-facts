@@ -21,10 +21,7 @@ def fetch_cat_facts():
 # /////////// /////////// ///////////
 # Set time to send scheduled message
 utc = datetime.timezone.utc
-time = datetime.time(hour=2, minute=52, tzinfo=utc)
-
-# Optional: seconds
-# time = datetime.time(hour=13, minute=35, second=45, tzinfo=utc)
+time = datetime.time(hour=3, minute=44, tzinfo=utc)
 
 class SchedulerCog(commands.Cog):
     def __init__(self, bot):
@@ -53,6 +50,19 @@ class SchedulerCog(commands.Cog):
         else:
             print(f"Guild ID {self.guild_id} not found in CSV.")
 
+    def update_daily_cat_fact(self, fact):
+        """Update the CSV file with the daily cat fact for the current guild."""
+        try:
+            df = pd.read_csv(self.csv_file)
+            if self.guild_id in df['guild_id'].values:
+                df.loc[df['guild_id'] == self.guild_id, 'daily_cat_fact'] = fact
+                df.to_csv(self.csv_file, index=False)
+                print("CSV updated with the new daily cat fact.")
+            else:
+                print(f"Guild ID {self.guild_id} not found in CSV.")
+        except (FileNotFoundError, pd.errors.EmptyDataError) as e:
+            print(f"Error updating CSV: {e}")
+
     def cog_unload(self):
         self.message_send.cancel()
 
@@ -69,11 +79,17 @@ class SchedulerCog(commands.Cog):
             cat_facts_df = fetch_cat_facts()
             random_fact_val = random.randint(0, len(cat_facts_df) - 1)
             daily_cat_fact = cat_facts_df['text'][random_fact_val]
+
+            # Send the cat fact to the channel
             await channel.send(f"Good morning! 🐈\nHere's your daily cat fact to start the day:\n\n```{daily_cat_fact}```")
             print(f"Fact sent at {formatted_time}.")
-            # Remove the chosen daily cat fact from the pool of daily cat facts
+
+            # Update the CSV with the chosen daily cat fact
+            self.update_daily_cat_fact(daily_cat_fact)
+            
+            # Remove the chosen daily cat fact from the pool of cat facts
             cat_facts_df.drop(random_fact_val, inplace=True)
-            print(cat_facts_df['text'])
+            print(cat_facts_df)
         else:
             print("Channel not found")
 

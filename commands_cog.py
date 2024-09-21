@@ -13,6 +13,25 @@ class BotCommands(commands.Cog):
     async def ping(self, interaction: discord.Interaction):
         await interaction.response.send_message("pong")
 
+    @app_commands.command(name="showdaily", description="Outputs the chosen daily cat fact")
+    async def showdaily(self, interaction: discord.Interaction):
+        try:
+            df = pd.read_csv(self.csv_file)
+            guild_id = interaction.guild_id
+
+            # Check if the guild_id exists in the CSV
+            if guild_id in df['guild_id'].values:
+                daily_cat_fact = df.loc[df['guild_id'] == guild_id, 'daily_cat_fact'].values[0]
+                if daily_cat_fact:
+                    await interaction.response.send_message(f"Today's cat fact: {daily_cat_fact}")
+                else:
+                    await interaction.response.send_message("No cat fact has been set for today.")
+            else:
+                await interaction.response.send_message("Guild not found in the records.")
+
+        except Exception as e:
+            await interaction.followup.send(f"An error occurred: {str(e)}", ephemeral=True)
+
     @app_commands.command(name="setchannel", description="Sets channel for cat fact output")
     @commands.has_permissions(administrator=True)
     async def set_channel(self, interaction: discord.Interaction):
@@ -38,6 +57,26 @@ class BotCommands(commands.Cog):
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {str(e)}", ephemeral=True)
 
+    # Uncomment in the future if you are experimenting with bot and run into a rate limit. 
+    # Better to sync commands sparingly rather than every time you run the bot.
+
+    @app_commands.command(name="sync", description="To safely sync new commands to prevent rate limit.")
+    @commands.is_owner()
+    async def sync(self, interaction: discord.Interaction, guild_id: int = None):
+        if guild_id:
+            guild = discord.Object(id=guild_id)
+            self.bot.tree.copy_global_to(guild=guild)
+            await self.bot.tree.sync(guild=guild)
+            await interaction.response.send_message(f"Commands synced to guild {guild_id}", ephemeral=True)
+        else:
+            await self.bot.tree.sync()
+            await interaction.response.send_message("Commands synced globally", ephemeral=True)
+
+    @sync.error
+    async def sync_error(self, interaction: discord.Interaction, error):
+        if isinstance(error, commands.NotOwner):
+            await interaction.response.send_message("You are not the owner!", ephemeral=True)
+
     @commands.Cog.listener()
     async def on_ready(self):
         try:
@@ -48,25 +87,3 @@ class BotCommands(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(BotCommands(bot))
-
-# ////
-
-    # Uncomment in the future if you are experimenting with bot and run into a rate limit. 
-    # Better to sync commands sparingly rather than every time you run the bot.
-
-    # @app_commands.command(name="sync", description="To safely sync new commands to prevent rate limit.")
-    # @commands.is_owner()
-    # async def sync(self, interaction: discord.Interaction, guild_id: int = None):
-    #     if guild_id:
-    #         guild = discord.Object(id=guild_id)
-    #         self.bot.tree.copy_global_to(guild=guild)
-    #         await self.bot.tree.sync(guild=guild)
-    #         await interaction.response.send_message(f"Commands synced to guild {guild_id}", ephemeral=True)
-    #     else:
-    #         await self.bot.tree.sync()
-    #         await interaction.response.send_message("Commands synced globally", ephemeral=True)
-
-    # @sync.error
-    # async def sync_error(self, interaction: discord.Interaction, error):
-    #     if isinstance(error, commands.NotOwner):
-    #         await interaction.response.send_message("You are not the owner!", ephemeral=True)
