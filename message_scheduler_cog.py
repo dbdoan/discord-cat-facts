@@ -21,7 +21,7 @@ def fetch_cat_facts():
 # /////////// /////////// ///////////
 # Set time to send scheduled message
 utc = datetime.timezone.utc
-time = datetime.time(hour=14, minute=43, tzinfo=utc)
+time = datetime.time(hour=1, minute=55, tzinfo=utc)
 
 # Optional: seconds
 # time = datetime.time(hour=13, minute=35, second=45, tzinfo=utc)
@@ -32,8 +32,6 @@ class SchedulerCog(commands.Cog):
         self.csv_file = 'ids.csv'
         self.guild_id = None
         self.channel_id = None
-
-        # self.load_channel_id()
 
         self.message_send.start()
 
