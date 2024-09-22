@@ -1,27 +1,27 @@
 import datetime
 from discord.ext import commands, tasks
 import pandas as pd
-import random
 import requests
 
 # /////////// /////////// ///////////
 def fetch_cat_facts():
     try:
-        response = requests.get('https://cat-fact.herokuapp.com/facts')
+        response = requests.get('https://catfact.ninja/fact?max_length=140')
         response.raise_for_status()
         if response.ok:
+            fact = response.json()['fact']
             print(f"Status Code: {response.status_code}")
-            return pd.DataFrame(data=response.json())
+            return fact
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP Error occurred: {http_err}")
     except Exception as err:
         print(f"Error: {err}")
-    return pd.DataFrame()
+    return None
 
 # /////////// /////////// ///////////
 # Set time to send scheduled message
 utc = datetime.timezone.utc
-time = datetime.time(hour=3, minute=44, tzinfo=utc)
+time = datetime.time(hour=3, minute=4, tzinfo=utc)
 
 class SchedulerCog(commands.Cog):
     def __init__(self, bot):
@@ -76,20 +76,17 @@ class SchedulerCog(commands.Cog):
         time_now = datetime.datetime.now()
         formatted_time = time_now.strftime("%I:%M %p")
         if channel:
-            cat_facts_df = fetch_cat_facts()
-            random_fact_val = random.randint(0, len(cat_facts_df) - 1)
-            daily_cat_fact = cat_facts_df['text'][random_fact_val]
+            daily_cat_fact = fetch_cat_facts() 
 
-            # Send the cat fact to the channel
-            await channel.send(f"Good morning! 🐈\nHere's your daily cat fact to start the day:\n\n```{daily_cat_fact}```")
-            print(f"Fact sent at {formatted_time}.")
+            if daily_cat_fact:
+                # Send the cat fact to the channel
+                await channel.send(f"Good morning! 🐈\nHere's your daily cat fact to start the day:\n\n```{daily_cat_fact}```")
+                print(f"Fact sent at {formatted_time}.")
 
-            # Update the CSV with the chosen daily cat fact
-            self.update_daily_cat_fact(daily_cat_fact)
-            
-            # Remove the chosen daily cat fact from the pool of cat facts
-            cat_facts_df.drop(random_fact_val, inplace=True)
-            print(cat_facts_df)
+                # Update the CSV with the chosen daily cat fact
+                self.update_daily_cat_fact(daily_cat_fact)
+            else:
+                print("Failed to fetch a cat fact.")
         else:
             print("Channel not found")
 
