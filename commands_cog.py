@@ -3,6 +3,8 @@ from discord import app_commands
 from discord.ext import commands
 import pandas as pd
 
+from message_scheduler_cog import fetch_cat_facts
+
 class BotCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -13,24 +15,24 @@ class BotCommands(commands.Cog):
     async def ping(self, interaction: discord.Interaction):
         await interaction.response.send_message("pong")
 
-    @app_commands.command(name="showdaily", description="Outputs the chosen daily cat fact")
-    async def showdaily(self, interaction: discord.Interaction):
+    @app_commands.command(name="showdaily", description="Shows you the daily cat fact in case you missed it!")
+    async def showdaily(self, interaction: discord.Interaction): 
         try:
             df = pd.read_csv(self.csv_file)
             guild_id = interaction.guild_id
-
-            # Check if the guild_id exists in the CSV
             if guild_id in df['guild_id'].values:
                 daily_cat_fact = df.loc[df['guild_id'] == guild_id, 'daily_cat_fact'].values[0]
-                if daily_cat_fact:
-                    await interaction.response.send_message(f"Today's cat fact: {daily_cat_fact}")
-                else:
-                    await interaction.response.send_message("No cat fact has been set for today.")
+                await interaction.response.send_message(f"\nMissed the daily cat fact? No worries. Here is it again. 😸\n\n```{daily_cat_fact}```")
             else:
-                await interaction.response.send_message("Guild not found in the records.")
-
-        except Exception as e:
-            await interaction.followup.send(f"An error occurred: {str(e)}", ephemeral=True)
+                await interaction.response.send_message("Your daily cat fact was not found in the files.")
+        except(FileNotFoundError, pd.errors.EmptyDataError) as e:
+            print(f"Error reading CSV: {e}")
+            await interaction.response.send_message("There was an error trying to read the CSV.")
+        
+    @app_commands.command(name="randomfact", description="Responds with another random cat fact!")
+    async def randomfact(self, interaction: discord.Interaction): 
+        random_cat_fact = fetch_cat_facts()
+        await interaction.response.send_message(f"\nSomeone called for another cat fact? 😼\n\n```{random_cat_fact}```")
 
     @app_commands.command(name="setchannel", description="Sets channel for cat fact output")
     @commands.has_permissions(administrator=True)
@@ -62,28 +64,32 @@ class BotCommands(commands.Cog):
 
     @app_commands.command(name="sync", description="To safely sync new commands to prevent rate limit.")
     @commands.is_owner()
-    async def sync(self, interaction: discord.Interaction, guild_id: int = None):
-        if guild_id:
-            guild = discord.Object(id=guild_id)
+    async def sync(self, interaction: discord.Interaction):
+        # Get the guild from the interaction
+        guild = interaction.guild
+        
+        if guild:  # Sync only for the current guild
             self.bot.tree.copy_global_to(guild=guild)
             await self.bot.tree.sync(guild=guild)
-            await interaction.response.send_message(f"Commands synced to guild {guild_id}", ephemeral=True)
-        else:
-            await self.bot.tree.sync()
-            await interaction.response.send_message("Commands synced globally", ephemeral=True)
+            await interaction.response.send_message(f"Commands synced to this guild ({guild.name})", ephemeral=True)
+        else:  # In case it's used outside of a guild (e.g., in DMs)
+            await interaction.response.send_message("This command can only be used in a server.", ephemeral=True)
 
     @sync.error
     async def sync_error(self, interaction: discord.Interaction, error):
         if isinstance(error, commands.NotOwner):
             await interaction.response.send_message("You are not the owner!", ephemeral=True)
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        try:
-            await self.bot.tree.sync()
-            print("Commands synced globally")
-        except Exception as e:
-            print(f"Failed to sync commands: {e}")
+# Globally updates all commands on each bot-boot
+# Not good in practice as it may cause rate-limit issues
+# Manual sync command above preferred
+    # @commands.Cog.listener()
+    # async def on_ready(self):
+    #     try:
+    #         await self.bot.tree.sync()
+    #         print("Commands synced globally")
+    #     except Exception as e:
+    #         print(f"Failed to sync commands: {e}")
 
 async def setup(bot):
     await bot.add_cog(BotCommands(bot))

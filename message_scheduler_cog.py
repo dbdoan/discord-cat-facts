@@ -21,7 +21,7 @@ def fetch_cat_facts():
 # /////////// /////////// ///////////
 # Set time to send scheduled message
 utc = datetime.timezone.utc
-time = datetime.time(hour=3, minute=4, tzinfo=utc)
+time = datetime.time(hour=5, minute=51, tzinfo=utc)
 
 class SchedulerCog(commands.Cog):
     def __init__(self, bot):
