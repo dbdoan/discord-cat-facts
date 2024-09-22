@@ -19,9 +19,9 @@ def fetch_cat_facts():
     return None
 
 # /////////// /////////// ///////////
-# Set time to send scheduled message
+# Set time to send scheduled message [UTC time]
 utc = datetime.timezone.utc
-time = datetime.time(hour=5, minute=51, tzinfo=utc)
+time = datetime.time(hour=14, minute=00, tzinfo=utc)
 
 class SchedulerCog(commands.Cog):
     def __init__(self, bot):
