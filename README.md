@@ -1,7 +1,7 @@
 # Discord Cat Facts bot
 
 ## About
-A Discord bot which outputs a random cat fact everyday at the same scheduled time!
+A Discord bot which outputs a random cat fact everyday at the same scheduled time using https://catfact.ninja/ API.
 
 ## Environmental Variables
 | Name                  | Type   |  Description                                         |
@@ -20,5 +20,4 @@ A Discord bot which outputs a random cat fact everyday at the same scheduled tim
 - Public site for users to add bot to their servers
 - Send random cat pictures
 - Command for user to set custom time for bot
-- Easter egg
 - SQL server to track guilds_id and channel_ids over a csv
