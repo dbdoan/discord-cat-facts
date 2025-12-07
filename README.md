@@ -1,5 +1,7 @@
 # Discord Cat Facts bot
 
+# NOTICE: DEPRECATED
+
 ## About
 A Discord bot which outputs a random cat fact everyday at the same scheduled time using https://catfact.ninja/ API.
 
